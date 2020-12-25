@@ -1,18 +1,83 @@
 const core = require('@actions/core');
-const wait = require('./wait');
+const exec = require('@actions/exec');
+const github = require('@actions/github');
+const { request } = require('graphql-request');
+const { promises: fs } = require('fs');
+const path = require('path')
+const t = require('runtypes')
 
+const Post = t.Record({
+  "cuid": t.String,
+  "slug": t.String,
+  "contentMarkdown": t.String,
+})
+const PostsResp = t.Record({
+  data: t.Record({
+    user: t.Record({
+      publication: t.Record({
+        posts: t.Array(Post)
+      })
+    })
+  })
+})
+const PostsByName = t.Dictionary(Post)
 
-// most @actions toolkit packages have async methods
 async function run() {
   try {
-    const ms = core.getInput('milliseconds');
-    core.info(`Waiting ${ms} milliseconds ...`);
+    // const hashnodeAuth = core.getInput('hashnodeAuth', { required: true })
+    const hashnodeUsername = core.getInput('hashnodeUsername', { required: true })
+    const postsPath = core.getInput('postsPath') || 'posts'
+    const { owner, repo } = github.context.repo
 
-    core.debug((new Date()).toTimeString()); // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
-    await wait(parseInt(ms));
-    core.info((new Date()).toTimeString());
+    exec(`git clone https://github.com/${owner}/${repo}.git ~/${repo}`)
+    const postsLocation = path.join(`~`, repo, postsPath)
+    const files = await fs.readdir(postsLocation)
+    const filesMd = files.filter(fileName => fileName.endsWith('.md'))
 
-    core.setOutput('time', new Date().toTimeString());
+    const posts = []
+    for (let isAllPagesFetched = false, i = 0; !isAllPagesFetched; i++) {
+      const resp = PostsResp.check(await request(
+        'https://api.hashnode.com',
+        `
+          query($username:String!, $page: Int!) {
+            user(username:$username) {
+              publication {
+                posts(page:$page) {
+                  cuid
+                  slug
+                  contentMarkdown
+                }
+              }
+            }
+          }
+        `,
+        { username: hashnodeUsername, page: i }
+      ))
+      posts.push(...resp.data.user.publication.posts)
+      isAllPagesFetched = resp.data.user.publication.posts.length === 0
+    }
+
+    core.debug(`POSTS: ${JSON.stringify(posts)}`)
+    core.debug(`FILES: ${JSON.stringify(filesMd)}`)
+
+    const postsByName = posts.reduce((acc, post) => {
+      acc[post.slug] = post
+      return acc
+    }, PostsByName.check({}))
+
+    for (const fileName of filesMd) {
+      const postName = fileName.replace('.md', '')
+      if (postName in postsByName) {
+        const fileData = (await fs.readFile(path.join(postsLocation, fileName))).toString()
+        if (postsByName[postName].contentMarkdown !== fileData) {
+          core.debug(`UPDATE: ${postName}`)
+        }
+        core.debug(`EXIST: ${postName}`)
+      } else {
+        core.debug(`CREATE: ${postName}`)
+      }
+    }
+
   } catch (error) {
     core.setFailed(error.message);
   }
