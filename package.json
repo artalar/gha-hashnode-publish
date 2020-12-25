@@ -1,7 +1,7 @@
 {
-  "name": "javascript-action",
+  "name": "hashnode-publish",
   "version": "1.0.0",
-  "description": "JavaScript Action Template",
+  "description": "Publish new posts and update changed posts to Hashnode",
   "main": "index.js",
   "scripts": {
     "lint": "eslint .",
@@ -18,12 +18,12 @@
     "Actions",
     "JavaScript"
   ],
-  "author": "",
+  "author": "artalar",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/actions/javascript-action/issues"
+    "url": "https://github.com/artalar/gha-hashnode-publish/issues"
   },
-  "homepage": "https://github.com/actions/javascript-action#readme",
+  "homepage": "https://github.com/artalar/gha-hashnode-publish#readme",
   "dependencies": {
     "@actions/artifact": "^0.5.0",
     "@actions/cache": "^1.0.5",
