@@ -28,6 +28,7 @@ async function run() {
         const hashnodeUsername = core.getInput('hashnodeUsername', { required: true });
         const postsPath = core.getInput('postsPath') || 'posts';
         const { owner, repo } = github.context.repo;
+        core.debug(JSON.stringify({ owner, repo }));
         exec_1.exec(`git clone https://github.com/${owner}/${repo}.git ~/${repo}`);
         const postsLocation = path.join(`~`, repo, postsPath);
         const files = await fs_1.promises.readdir(postsLocation);

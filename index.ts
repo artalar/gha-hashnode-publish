@@ -29,6 +29,8 @@ async function run() {
     const postsPath = core.getInput('postsPath') || 'posts'
     const { owner, repo } = github.context.repo
 
+    core.debug(JSON.stringify({ owner, repo }))
+
     exec(`git clone https://github.com/${owner}/${repo}.git ~/${repo}`)
     const postsLocation = path.join(`~`, repo, postsPath)
     const files = await fs.readdir(postsLocation)
