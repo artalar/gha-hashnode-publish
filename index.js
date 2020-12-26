@@ -93,7 +93,8 @@ async function run() {
         }
     }
     catch (error) {
-        core_1.default.setFailed(error.message);
+        console.error(error);
+        core_1.default.setFailed(error);
     }
 }
 run();
