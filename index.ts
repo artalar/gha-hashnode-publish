@@ -36,7 +36,7 @@ async function run() {
 
     debug(`Clone repo: ${repoUrl}`)
 
-    exec(`git clone ${repoUrl} ${repoLocation}`)
+    await exec(`git clone ${repoUrl} ${repoLocation}`)
 
     debug(`Read posts location directory: ${postsLocation}`)
 

@@ -32,7 +32,7 @@ async function run() {
         const repoLocation = `/tmp/gha-hashnode-publish-repo`;
         const postsLocation = `${repoLocation}/${postsPath}`;
         debug(`Clone repo: ${repoUrl}`);
-        exec_1.exec(`git clone ${repoUrl} ${repoLocation}`);
+        await exec_1.exec(`git clone ${repoUrl} ${repoLocation}`);
         debug(`Read posts location directory: ${postsLocation}`);
         const files = await fs_1.promises.readdir(postsLocation);
         const filesMd = files.filter(fileName => fileName.endsWith('.md'));
