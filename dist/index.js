@@ -13,7 +13,6 @@ const exec_1 = __webpack_require__(1514);
 const github = __webpack_require__(5438);
 const graphql_request_1 = __webpack_require__(2476);
 const fs_1 = __webpack_require__(5747);
-const path = __webpack_require__(5622);
 const t = __webpack_require__(5568);
 const Post = t.Record({
     "cuid": t.String,
@@ -38,8 +37,8 @@ async function run() {
         const postsPath = core.getInput('postsPath') || 'posts';
         const { owner, repo } = github.context.repo;
         const repoUrl = `https://github.com/${owner}/${repo}.git`;
-        const repoLocation = path.join(`tmp`, `gha-hashnode-publish-repo`);
-        const postsLocation = path.join(repoLocation, postsPath);
+        const repoLocation = `/tmp/gha-hashnode-publish-repo`;
+        const postsLocation = `${repoLocation}/${postsPath}`;
         debug(`Clone repo: ${repoUrl}`);
         exec_1.exec(`git clone ${repoUrl} ${repoLocation}`);
         debug(`Read posts location directory: ${postsLocation}`);
@@ -73,7 +72,7 @@ async function run() {
         for (const fileName of filesMd) {
             const postName = fileName.replace('.md', '');
             if (postName in postsByName) {
-                const fileData = (await fs_1.promises.readFile(path.join(postsLocation, fileName))).toString();
+                const fileData = (await fs_1.promises.readFile(`${postsLocation}/${fileName}`)).toString();
                 if (postsByName[postName].contentMarkdown !== fileData) {
                     debug(`UPDATE: ${postName}`);
                 }

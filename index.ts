@@ -31,8 +31,8 @@ async function run() {
     const postsPath = core.getInput('postsPath') || 'posts'
     const { owner, repo } = github.context.repo
     const repoUrl = `https://github.com/${owner}/${repo}.git`
-    const repoLocation = path.join(`tmp`, `gha-hashnode-publish-repo`)
-    const postsLocation = path.join(repoLocation, postsPath)
+    const repoLocation = `/tmp/gha-hashnode-publish-repo`
+    const postsLocation = `${repoLocation}/${postsPath}`
 
     debug(`Clone repo: ${repoUrl}`)
 
@@ -79,7 +79,7 @@ async function run() {
     for (const fileName of filesMd) {
       const postName = fileName.replace('.md', '')
       if (postName in postsByName) {
-        const fileData = (await fs.readFile(path.join(postsLocation, fileName))).toString()
+        const fileData = (await fs.readFile(`${postsLocation}/${fileName}`)).toString()
         if (postsByName[postName].contentMarkdown !== fileData) {
           debug(`UPDATE: ${postName}`)
         }
