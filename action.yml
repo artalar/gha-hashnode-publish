@@ -4,6 +4,9 @@ inputs:
   hashnodeAuth:
     description: 'auth token from https://hashnode.com/settings/developer'
     required: true
+  hashnodeUsername:
+    description: 'username in https://hashnode.com'
+    required: true
 runs:
   using: 'node12'
   main: 'dist/index.js'
