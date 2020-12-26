@@ -12,11 +12,9 @@ const Post = t.Record({
   "contentMarkdown": t.String,
 })
 const PostsResp = t.Record({
-  data: t.Record({
-    user: t.Record({
-      publication: t.Record({
-        posts: t.Array(Post)
-      })
+  user: t.Record({
+    publication: t.Record({
+      posts: t.Array(Post)
     })
   })
 })
@@ -64,8 +62,8 @@ async function run() {
         `,
         { username: hashnodeUsername, page: i }
       ))
-      posts.push(...resp.data.user.publication.posts)
-      isAllPagesFetched = resp.data.user.publication.posts.length === 0
+      posts.push(...resp.user.publication.posts)
+      isAllPagesFetched = resp.user.publication.posts.length === 0
     }
 
     debug(`Posts: ${JSON.stringify(posts)}`)
