@@ -1,9 +1,9 @@
-import core from '@actions/core'
+import * as core from '@actions/core'
 import { exec } from '@actions/exec'
-import github from '@actions/github'
+import * as github from '@actions/github'
 import { request } from 'graphql-request'
 import { promises as fs } from 'fs'
-import path from 'path'
+import * as path from 'path'
 import * as t from 'runtypes'
 
 const Post = t.Record({
