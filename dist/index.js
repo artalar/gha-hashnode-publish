@@ -30,19 +30,22 @@ const PostsResp = t.Record({
     })
 });
 const PostsByName = t.Dictionary(Post);
+const debug = (message) => core.debug(`[code] ${message}`);
 async function run() {
     try {
         const hashnodeAuth = core.getInput('hashnodeAuth', { required: true });
         const hashnodeUsername = core.getInput('hashnodeUsername', { required: true });
         const postsPath = core.getInput('postsPath') || 'posts';
         const { owner, repo } = github.context.repo;
-        core.debug(`Clone repo`);
-        exec_1.exec(`git clone https://github.com/${owner}/${repo}.git ~/${repo}`);
+        const repoUrl = `https://github.com/${owner}/${repo}.git`;
         const postsLocation = path.join(`~`, repo, postsPath);
-        core.debug(`Read posts location directory`);
+        debug(`Clone repo: ${repoUrl}`);
+        exec_1.exec(`git clone ${repoUrl} ~/${repo}`);
+        debug(`Read posts location directory: ${postsLocation}`);
+        debug(`Test: ${JSON.stringify(await fs_1.promises.readdir(path.join(`~`, repo)))}`);
         const files = await fs_1.promises.readdir(postsLocation);
         const filesMd = files.filter(fileName => fileName.endsWith('.md'));
-        core.debug(`Fetch posts`);
+        debug(`Fetch posts`);
         const posts = [];
         for (let isAllPagesFetched = false, i = 0; !isAllPagesFetched; i++) {
             const resp = PostsResp.check(await graphql_request_1.request('https://api.hashnode.com', `
@@ -61,8 +64,8 @@ async function run() {
             posts.push(...resp.data.user.publication.posts);
             isAllPagesFetched = resp.data.user.publication.posts.length === 0;
         }
-        core.debug(`Posts: ${JSON.stringify(posts)}`);
-        core.debug(`Files: ${JSON.stringify(filesMd)}`);
+        debug(`Posts: ${JSON.stringify(posts)}`);
+        debug(`Files: ${JSON.stringify(filesMd)}`);
         const postsByName = posts.reduce((acc, post) => {
             acc[post.slug] = post;
             return acc;
@@ -72,12 +75,12 @@ async function run() {
             if (postName in postsByName) {
                 const fileData = (await fs_1.promises.readFile(path.join(postsLocation, fileName))).toString();
                 if (postsByName[postName].contentMarkdown !== fileData) {
-                    core.debug(`UPDATE: ${postName}`);
+                    debug(`UPDATE: ${postName}`);
                 }
-                core.debug(`EXIST: ${postName}`);
+                debug(`EXIST: ${postName}`);
             }
             else {
-                core.debug(`CREATE: ${postName}`);
+                debug(`CREATE: ${postName}`);
             }
         }
     }
