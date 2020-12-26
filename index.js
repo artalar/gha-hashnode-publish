@@ -30,11 +30,11 @@ async function run() {
         const postsPath = core.getInput('postsPath') || 'posts';
         const { owner, repo } = github.context.repo;
         const repoUrl = `https://github.com/${owner}/${repo}.git`;
-        const postsLocation = path.join(`~`, repo, postsPath);
+        const repoLocation = path.join(`tmp`, `gha-hashnode-publish-repo`);
+        const postsLocation = path.join(repoLocation, postsPath);
         debug(`Clone repo: ${repoUrl}`);
-        exec_1.exec(`git clone ${repoUrl} ~/${repo}`);
+        exec_1.exec(`git clone ${repoUrl} ${repoLocation}`);
         debug(`Read posts location directory: ${postsLocation}`);
-        debug(`Test: ${JSON.stringify(await fs_1.promises.readdir(path.join(`~`, repo)))}`);
         const files = await fs_1.promises.readdir(postsLocation);
         const filesMd = files.filter(fileName => fileName.endsWith('.md'));
         debug(`Fetch posts`);
