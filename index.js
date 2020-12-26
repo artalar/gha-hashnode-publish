@@ -28,11 +28,13 @@ async function run() {
         const hashnodeUsername = core.getInput('hashnodeUsername', { required: true });
         const postsPath = core.getInput('postsPath') || 'posts';
         const { owner, repo } = github.context.repo;
-        core.debug(JSON.stringify({ owner, repo }));
+        core.debug(`Clone repo`);
         exec_1.exec(`git clone https://github.com/${owner}/${repo}.git ~/${repo}`);
         const postsLocation = path.join(`~`, repo, postsPath);
+        core.debug(`Read posts location directory`);
         const files = await fs_1.promises.readdir(postsLocation);
         const filesMd = files.filter(fileName => fileName.endsWith('.md'));
+        core.debug(`Fetch posts`);
         const posts = [];
         for (let isAllPagesFetched = false, i = 0; !isAllPagesFetched; i++) {
             const resp = PostsResp.check(await graphql_request_1.request('https://api.hashnode.com', `
@@ -51,8 +53,8 @@ async function run() {
             posts.push(...resp.data.user.publication.posts);
             isAllPagesFetched = resp.data.user.publication.posts.length === 0;
         }
-        core.debug(`POSTS: ${JSON.stringify(posts)}`);
-        core.debug(`FILES: ${JSON.stringify(filesMd)}`);
+        core.debug(`Posts: ${JSON.stringify(posts)}`);
+        core.debug(`Files: ${JSON.stringify(filesMd)}`);
         const postsByName = posts.reduce((acc, post) => {
             acc[post.slug] = post;
             return acc;
@@ -72,7 +74,6 @@ async function run() {
         }
     }
     catch (error) {
-        console.error(error);
         core.setFailed(error);
     }
 }
