@@ -33,7 +33,7 @@
     "@actions/glob": "^0.1.1",
     "@actions/io": "^1.0.2",
     "@actions/tool-cache": "^1.6.1",
-    "graphql": "^15.4.0",
+    "graphql": "^15.8.0",
     "graphql-request": "^3.4.0",
     "runtypes": "^5.0.1"
   },
